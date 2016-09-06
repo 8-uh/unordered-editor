@@ -1,0 +1,45 @@
+.root {
+  position: relative;
+  height: 100%;
+  background: white;
+  font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+  line-height: 21px;
+
+  > c-line-number {
+    position: absolute;
+    right: 100%;
+    background-color: #333;
+    padding-right: 10px;
+    min-height: 100%;
+
+    > span {
+      display: block;
+      color: darkgray;
+    }
+  }
+
+  > c-dummy {
+    position: absolute;
+    visibility: hidden;
+  }
+
+  > input {
+    width: 8px;
+    left: 0;
+    top: 0;
+    outline: none;
+    border: none;
+    background-color: red;
+    position: absolute;
+    display: block;
+    line-height: 21px;
+  }
+
+  > c-editor-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+  }
+}

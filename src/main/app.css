@@ -1,0 +1,34 @@
+::-webkit-scrollbar-track-piece{background-color:#fff;}
+::-webkit-scrollbar{width:2px;height:2px;}
+::-webkit-scrollbar-thumb{background:lightgray;}
+
+* {
+  box-sizing: border-box;
+
+  &:not(input) {
+    user-select: none;
+  }
+}
+
+a {
+  text-decoration: none;
+}
+
+html {
+  height: 100%;
+  background-color: #1d232a;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  background: url(https://res.wx.qq.com/zh_CN/htmledition/v2/images/web_wechat_login_bg302bc5.jpg) no-repeat center;
+  background-size: cover;
+  cursor: default;
+  font-family: "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+
+  > div {
+    height: 100%;
+    overflow: hidden;
+  }
+}
