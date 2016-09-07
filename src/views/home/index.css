@@ -1,45 +1,69 @@
 .root {
   position: relative;
   height: 100%;
-  background: white;
-  font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
-  line-height: 21px;
-
-  > c-line-number {
-    position: absolute;
-    right: 100%;
-    background-color: #333;
-    padding-right: 10px;
-    min-height: 100%;
-
-    > span {
-      display: block;
-      color: darkgray;
-    }
-  }
+  background-color: #efefef;
 
   > c-dummy {
     position: absolute;
     visibility: hidden;
+
+    > span {
+      display: inline;
+    }
   }
 
-  > input {
-    width: 8px;
-    left: 0;
-    top: 0;
-    outline: none;
-    border: none;
-    background-color: red;
+  > c-editor-root {
     position: absolute;
-    display: block;
-    line-height: 21px;
-  }
+    background-color: white;
+    left: 20px;
+    top: 20px;
+    right: 20px;
+    bottom: 20px;
+    overflow: auto;
 
-  > c-editor-content {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
+    > c-editor-wrapper {
+      display: flex;
+      min-height: 100%;
+
+      > c-line-number {
+        width: 45px;
+        padding-right: 5px;
+        text-align: right;
+        color: lightgray;
+        font-size: 10px;
+        background-color: darkgray;
+      }
+
+      > c-editor-content {
+        position: relative;
+        margin: 0 5px;
+        overflow-x: auto;
+        flex: 1;
+        min-height: 100%;
+        padding-bottom: 200px;
+
+        > c-line {
+          white-space: nowrap;
+        }
+      }
+    }
   }
+}
+
+@keyframes focuspointer {
+  0% { border-left: 3px solid blue; }
+  100% { border-left: 3px solid darkgray; }
+}
+
+.hiddenInput {
+  position: absolute;
+  outline: none;
+  border: none;
+  appearance: none;
+  background-color: rgba(200, 200, 200, 0.4);
+  color: transparent;
+}
+
+.hiddenInput:focus {
+  animation: focuspointer .8s infinite;
 }

@@ -16,7 +16,7 @@ module.exports = {
   },
   module: {
     loaders: [
-      {test: /\.css$/, loader: 'style!css?modules&importLoaders=1!postcss'},
+      {test: /\.css$/, loader: 'style!css?modules&importLoaders=1&localIdentName=[path]-[name]-[local]!postcss'},
       {test: /\.cjsx$/, loaders: ['react-hot', 'coffee', 'cjsx']},
       {test: /\.coffee$/, loaders: ['coffee']},
       {test: /\.(jpe?g|png|gif|svg)$/i, loader: 'file'}
@@ -28,7 +28,7 @@ module.exports = {
   ],
   postcss: [
     autoprefixer({
-      browsers: ['> 5%', 'last 4 versions']
+      browsers: ['> 4%', 'last 4 versions']
     }),
     precss,
   ]

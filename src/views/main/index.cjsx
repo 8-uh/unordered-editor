@@ -9,7 +9,7 @@ module.exports =
 
     @contextTypes:
       router: PropTypes.object.isRequired
-
+      
     render: ->
       {children} = @props
       <div className={style.root}>

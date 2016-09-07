@@ -1,17 +1,15 @@
-::-webkit-scrollbar-track-piece{background-color:#fff;}
-::-webkit-scrollbar{width:2px;height:2px;}
-::-webkit-scrollbar-thumb{background:lightgray;}
+::-webkit-scrollbar-track-piece { background-color: #fff; }
+::-webkit-scrollbar { width: 2px; height: 2px; }
+::-webkit-scrollbar-thumb { background: lightgray; }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 
   &:not(input) {
     user-select: none;
   }
-}
-
-a {
-  text-decoration: none;
 }
 
 html {
@@ -21,14 +19,17 @@ html {
 
 body {
   height: 100%;
-  margin: 0;
-  background: url(https://res.wx.qq.com/zh_CN/htmledition/v2/images/web_wechat_login_bg302bc5.jpg) no-repeat center;
-  background-size: cover;
+  line-height: 21px;
   cursor: default;
-  font-family: "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+  font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+
+  * {
+    display: block;
+  }
 
   > div {
     height: 100%;
+    position: relative;
     overflow: hidden;
   }
 }
