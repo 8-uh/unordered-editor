@@ -44,6 +44,14 @@
 
         > c-line {
           white-space: nowrap;
+
+          * {
+            display: inline-block;
+          }
+
+          c-enter {
+            color: lightgray;
+          }
         }
       }
     }
@@ -60,10 +68,10 @@
   outline: none;
   border: none;
   appearance: none;
-  background-color: rgba(200, 200, 200, 0.4);
+  background-color: rgba(200, 200, 200, 0.5);
   color: transparent;
 }
 
-.hiddenInput:focus {
+.hiddenInput[data-is-focus=true] {
   animation: focuspointer .8s infinite;
 }

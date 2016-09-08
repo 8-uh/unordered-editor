@@ -5,15 +5,14 @@ module.exports =
     class TextBuffer extends Component
       constructor: (props) ->
         super props
+        @virtualMode = true
         @defaultCharWidth = 0
         @defaultCharHeight = 0
         @doubleCharWidth = 0
         @doubleCharHeight = 0
         @lineHeight = 0
-        @imeInputing = false
-        @imeInputShift = false
-        @imeInputStartColumn = -1
-        @imeInputEndColumn = -1
+        @inputStartColumn = -1
+        @inputEndColumn = -1
         @state =
           content:
             rows: []
@@ -24,61 +23,204 @@ module.exports =
           cursorWidth: 0
           cursorHeight: 0
           hiddenInputValue: ''
+          hiddenInputFocus: false
 
       setCharSize: ({@defaultCharWidth, @defaultCharHeight, @doubleCharWidth, @doubleCharHeight, @lineHeight}) =>
         @setState({cursorHeight: @lineHeight})
 
-      setHiddenInputValue: (hiddenInputValue) => @setState {hiddenInputValue}
+      setHiddenInputValue: (value) =>
+        if @virtualMode
+          @controlVim(value)
+        else
+          @insertText(value)
+
+      controlVim: (value) ->
+        switch value
+          when 'i'
+            @disableVirtualMode()
+          when 'h'
+            @virtualModeMoveLeft()
+          when 'j'
+            @virtualModeMoveDown()
+          when 'k'
+            @virtualModeMoveUp()
+          when 'l'
+            @virtualModeMoveRight()
+          when '0'
+            @virtualModeMoveToStart()
+          when '$'
+            @virtualModeMoveToEnd()
+          when '^'
+            @virtualModeMoveToStartWithoutSpace()
+          when 'W'
+            @virtualModeW()
+          when 'w'
+            @virtualModeW()
+          when 'B'
+            @virtualModeB()
+          when 'b'
+            @virtualModeB()
+          when 'E'
+            @virtualModeE()
+          when 'e'
+            @virtualModeE()
+          when 'a'
+            @virtualModea()
+
+      onHiddenInputFocus: () =>
+        @setState {hiddenInputFocus: not @virtualMode}
+
+      onHiddenInputBlur: () =>
+        @setState {hiddenInputFocus: false}
 
       onHiddenInputKeyDown: (e) =>
-        console.log 'key down', e.keyCode
-        if e.keyCode >= 186 and e.keyCode <= 191 or e.keyCode >= 219 and e.keyCode <= 222 or e.keyCode >= 48 and e.keyCode <= 57 or e.keyCode >= 65 and e.keyCode <= 90
-          {hiddenInputValue} = @state
-          @insertText hiddenInputValue
-          @setState {hiddenInputValue: ''}
-        if e.keyCode is 13 # enter
-          @insertEnter()
-        if e.keyCode is 8 # backspace
-          @insertBackspace()
-        if e.keyCode is 32 # space
-          {hiddenInputValue} = @state
-          @insertText hiddenInputValue
-          @setState {hiddenInputValue: ''}
-        if e.keyCode is 229 # ime input
-          if not @imeInputing
-            {content: {rows}, cursorRow, cursorColumn} = @state
-            @imeInputStartColumn = cursorColumn
-            @imeInputEndColumn = (rows[cursorRow] || '').length - cursorColumn
-            @imeInputing = true
+        if not @virtualMode
+          if e.keyCode is 13 # enter
+            @insertEnter()
+          if e.keyCode is 8 # backspace
+            @insertBackspace()
+          if e.keyCode is 27 # escape
+            @enableVirtualMode()
+
+      onHiddenInputKeyPress: (e) =>
 
       onHiddenInputKeyUp: (e) =>
-        console.log 'key up', e.keyCode
-        if e.keyCode >= 186 and e.keyCode <= 191 or e.keyCode >= 219 and e.keyCode <= 222 or e.keyCode >= 48 and e.keyCode <= 57 or e.keyCode >= 65 and e.keyCode <= 90
-          {hiddenInputValue} = @state
-          @insertText hiddenInputValue
-          if not @imeInputing
-            @setState {hiddenInputValue: ''}
-        if e.keyCode is 8 # backspace
-          if @imeInputing
-            @insertBackspace()
-        if e.keyCode is 13 # enter
-          if @imeInputing
-            @insertEnter()
-            @setState {hiddenInputValue: ''}
-        if e.keyCode is 32 # space
-          if @imeInputing
-            {hiddenInputValue} = @state
-            @insertText hiddenInputValue
-            if not @imeInputShift
-              @setState {hiddenInputValue: ''}
-              @imeInputing = false
-              @imeInputStartColumn = -1
-              @imeInputEndColumn = -1
-        if e.keyCode is 16 # shift
-          if @imeInputing
-            @imeInputShift = not @imeInputShift
+
+      disableVirtualMode: ->
+        @virtualMode = false
+        @setState {hiddenInputFocus: true}
+
+      virtualModea: ->
+        {content: {rows}, cursorColumn, cursorRow} = @state
+        line = rows[cursorRow] || ''
+        if line.length > 0 and line.slice(-1) isnt '\n'
+          cursorColumn += 1
+        console.log cursorColumn
+        @virtualMode = false
+        @setState {cursorColumn, hiddenInputFocus: true}
+        @updateCursorPosition cursorRow, cursorColumn
+
+      enableVirtualMode: ->
+        @virtualMode = true
+        @inputStartColumn = -1
+        @inputEndColumn = -1
+        {content: {rows}, cursorColumn, cursorRow} = @state
+        line = rows[cursorRow] || ''
+        if line.length > 0 and line.slice(-1) isnt '\n'
+          cursorColumn -= 1
+        console.log cursorColumn
+        @setState {cursorColumn, hiddenInputValue: '', hiddenInputFocus: false}
+        @updateCursorPosition cursorRow, cursorColumn
+
+      virtualModeMoveLeft: ->
+        {cursorRow, cursorColumn} = @state
+        if cursorColumn > 0
+          cursorColumn -= 1
+          @setState {cursorColumn}
+          @updateCursorPosition cursorRow, cursorColumn
+
+      virtualModeMoveUp: ->
+        {content: {rows}, cursorRow, cursorColumn} = @state
+        if cursorRow > 0
+          cursorRow -= 1
+          previousLineLength = rows[cursorRow]?.length || 0
+          if previousLineLength <= cursorColumn
+            cursorColumn = previousLineLength - 1
+          @setState {cursorRow, cursorColumn}
+          @updateCursorPosition cursorRow, cursorColumn
+
+      virtualModeMoveRight: ->
+        {content: {rows}, cursorRow, cursorColumn} = @state
+        if rows[cursorRow]?.length > cursorColumn + 1
+          cursorColumn += 1
+          @setState {cursorColumn}
+          @updateCursorPosition cursorRow, cursorColumn
+
+      virtualModeMoveDown: ->
+        {content: {rows}, cursorRow, cursorColumn} = @state
+        if cursorRow < rows.length - 1
+          cursorRow += 1
+          nextLineLength = rows[cursorRow]?.length || 0
+          if nextLineLength <= cursorColumn
+            cursorColumn = nextLineLength - 1
+          @setState {cursorRow, cursorColumn}
+          @updateCursorPosition cursorRow, cursorColumn
+
+      virtualModeMoveToStart: ->
+        {cursorRow, cursorColumn} = @state
+        if cursorColumn isnt 0
+          cursorColumn = 0
+          @setState {cursorColumn}
+          @updateCursorPosition cursorRow, cursorColumn
+
+      virtualModeMoveToEnd: ->
+        {content: {rows}, cursorRow, cursorColumn} = @state
+        lineLength = rows[cursorRow]?.length || 0
+        if cursorColumn isnt lineLength - 1
+          cursorColumn = lineLength > 0 and lineLength - 1 or 0
+          @setState {cursorColumn}
+          @updateCursorPosition cursorRow, cursorColumn
+
+      virtualModeMoveToStartWithoutSpace: ->
+        {content: {rows}, cursorRow, cursorColumn} = @state
+        spaceLength = rows[cursorRow]?.search /\S/
+        if cursorColumn isnt spaceLength
+          cursorColumn = spaceLength >= 0 and spaceLength or 0
+          @setState {cursorColumn}
+          @updateCursorPosition cursorRow, cursorColumn
+
+      virtualModeW: ->
+        {content: {rows}, cursorRow, cursorColumn} = @state
+        line = rows[cursorRow][cursorColumn...]
+        if line.match /\S*\s+\S+/
+          columnSpan = line.match(/\S*\s+/)[0].length
+          cursorColumn += columnSpan
+        else if cursorRow < rows.length - 1
+          cursorRow += 1
+          spaceLength = rows[cursorRow]?.search /\S/
+          if cursorColumn isnt spaceLength
+            cursorColumn = spaceLength >= 0 and spaceLength or 0
+        @setState {cursorRow, cursorColumn}
+        @updateCursorPosition cursorRow, cursorColumn
+
+      virtualModeB: ->
+        {content: {rows}, cursorRow, cursorColumn} = @state
+        if cursorColumn > 0
+          line = rows[cursorRow][..cursorColumn]
+          columnSpan = line.match(/\S+\s*\S*$/)[0].length
+          if columnSpan isnt 1
+            cursorColumn -= columnSpan - 1
+          else if cursorRow > 0
+            cursorRow -= 1
+            previousLine = rows[cursorRow]
+            cursorColumn = previousLine.length - previousLine.match(/\S+\s*$/)[0].length
+            cursorColumn = 0 if cursorColumn < 0
+        else if cursorRow > 0
+          cursorRow -= 1
+          previousLine = rows[cursorRow]
+          cursorColumn = previousLine.length - previousLine.match(/\S+\s*$/)[0].length
+          cursorColumn = 0 if cursorColumn < 0
+        @setState {cursorRow, cursorColumn}
+        @updateCursorPosition cursorRow, cursorColumn
+
+      virtualModeE: ->
+        {content: {rows}, cursorRow, cursorColumn} = @state
+        line = rows[cursorRow][cursorColumn + 1...]
+        if line.match /\s*\S+/
+          columnSpan = line.match(/\s*\S+/)[0].length
+          cursorColumn += columnSpan
+        else if cursorRow < rows.length - 1
+          cursorRow += 1
+          cursorColumn = 0
+          line = rows[cursorRow]
+          if line.match /\s*\S+/
+            cursorColumn = line.match(/\s*\S+/)[0].length - 1
+        @setState {cursorRow, cursorColumn}
+        @updateCursorPosition cursorRow, cursorColumn
 
       setCursorPosition: (x, y) =>
+        @inputStartColumn = -1
+        @inputEndColumn = -1
         {defaultCharWidth, doubleCharWidth, lineHeight} = this
         {content: {rows}} = @state
         cursorRow = Math.floor(y / lineHeight)
@@ -104,9 +246,8 @@ module.exports =
             cursorX -= cursorWidth
         cursorColumn = line.length > 0 && line.length - 1 || 0 if cursorColumn is -1
         cursorY = cursorRow * lineHeight
-        @setState {cursorRow, cursorColumn, cursorWidth, cursorX, cursorY}
+        @setState {cursorRow, cursorColumn, cursorWidth, cursorX, cursorY, hiddenInputValue: ''}
 
-      # just allow invoked after insert text, insert enter and backspace by text-buffer self
       updateCursorPosition: (cursorRow, cursorColumn) ->
         {defaultCharWidth, doubleCharWidth, lineHeight} = this
         {content: {rows}} = @state
@@ -119,21 +260,15 @@ module.exports =
           cursorX += cursorWidth
         cursorY = cursorRow * lineHeight
         cursorWidth = defaultCharWidth if cursorWidth is 0
+        # test
+        if cursorColumn < 0 or cursorColumn > line.length
+          throw new Error "cursorColumn is #{cursorColumn}, is less 0 or greater line length #{line.length}"
         @setState {cursorRow, cursorColumn, cursorWidth, cursorX, cursorY}
 
       insertBackspace: () ->
         {content: {rows}, cursorRow, cursorColumn, hiddenInputValue} = @state
         line = rows[cursorRow] || ''
-        if @imeInputing
-          line = [line[...@imeInputStartColumn], hiddenInputValue, if @imeInputEndColumn > 0 then line[-@imeInputEndColumn..] else ''].join('')
-          rows[cursorRow] = line
-          cursorColumn = @imeInputStartColumn + hiddenInputValue.length
-          if hiddenInputValue.length is 0
-            @imeInputing = false
-            # @imeShift = false
-            @imeInputStartColumn = -1
-            @imeInputEndColumn = -1
-        else if cursorColumn is 0
+        if cursorColumn is 0
           if cursorRow isnt 0
             previousLine = rows[cursorRow - 1]
             cursorColumn = previousLine.length - 1
@@ -148,43 +283,34 @@ module.exports =
         @updateCursorPosition cursorRow, cursorColumn
 
       insertEnter: () ->
-        {content: {rows}, cursorRow, cursorColumn, hiddenInputValue} = @state
+        {content: {rows}, cursorRow, cursorColumn} = @state
         line = rows[cursorRow] || ''
-        if @imeInputing
-          line = rows[cursorRow] || '\n'
-          line = [line[...@imeInputStartColumn], hiddenInputValue, if @imeInputEndColumn > 0 then line[-@imeInputEndColumn..] else ''].join('')
-          rows[cursorRow] = line
-          cursorColumn: @imeInputStartColumn + hiddenInputValue.length
-          @imeInputing = false
-          # @imeShift = false
-          @imeInputStartColumn = -1
-          @imeInputEndColumn = -1
-        else
-          newLine = line[...cursorColumn] + '\n'
-          newLineNext = line[cursorColumn..]
-          rows = [rows[...cursorRow]..., newLine, newLineNext, rows[cursorRow + 2..]...]
-          cursorRow += 1
-          cursorColumn = 0
-        @setState {content: {rows}}
+        newLine = line[...cursorColumn] + '\n'
+        newLineNext = line[cursorColumn..]
+        rows = [rows[...cursorRow]..., newLine, newLineNext, rows[cursorRow + 1..]...]
+        cursorRow += 1
+        cursorColumn = 0
+        @setState {content: {rows}, hiddenInputValue: ''}
         @updateCursorPosition cursorRow, cursorColumn
 
       insertText: (text) ->
         {content: {rows}, cursorRow, cursorColumn} = @state
         line = rows[cursorRow] || ''
-        if @imeInputing
-          line = [line[...@imeInputStartColumn], text, if @imeInputEndColumn > 0 then line[-@imeInputEndColumn..] else ''].join('')
-          cursorColumn = @imeInputStartColumn + text.length
-        else
-          line = [line[...cursorColumn], text, line[cursorColumn..]].join('')
-          cursorColumn += text.length
+        if @inputStartColumn is -1
+          @inputStartColumn = cursorColumn
+          @inputEndColumn = line.length - cursorColumn
+        line = [line[...@inputStartColumn], text, if @inputEndColumn > 0 then line[-@inputEndColumn..] else ''].join('')
+        cursorColumn = @inputStartColumn + text.length
         rows[cursorRow] = line
-        @setState {content: {rows}}
+        @setState {content: {rows}, hiddenInputValue: text}
         @updateCursorPosition cursorRow, cursorColumn
 
       render: ->
-        {content, cursorX, cursorY, cursorWidth, cursorHeight, hiddenInputValue} = @state
-        finalProps = {content, cursorX, cursorY, cursorWidth, cursorHeight, hiddenInputValue,
-          @setCharSize, @setCursorPosition, @setHiddenInputValue, @onHiddenInputKeyDown, @onHiddenInputKeyUp}
+        {content, cursorX, cursorY, cursorWidth, cursorHeight, hiddenInputValue, hiddenInputFocus} = @state
+        finalProps = {content, cursorX, cursorY, cursorWidth, cursorHeight, hiddenInputValue, hiddenInputFocus,
+          @setCharSize, @setCursorPosition, @setHiddenInputValue,
+          @onHiddenInputKeyDown, @onHiddenInputKeyPress, @onHiddenInputKeyUp,
+          @onHiddenInputFocus, @onHiddenInputBlur}
         createElement Editor, finalProps
 
     TextBuffer
