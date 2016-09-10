@@ -1,0 +1,49 @@
+.root {
+  position: relative;
+  min-height: 100%;
+  min-width: 100%;
+  display: inline-block;
+  background-color: rgb(40, 44, 52);
+  color: rgb(171, 178, 191);
+
+  > u-dummy {
+    position: absolute;
+    visibility: hidden;
+
+    > span {
+      display: inline;
+    }
+  }
+
+  > u-line {
+    white-space: nowrap;
+
+    * {
+      display: inline-block;
+    }
+
+    u-enter {
+      color: rgb(59, 64, 72);
+    }
+  }
+}
+
+@keyframes focuspointer {
+  0% { border-left: 3px solid transparent; }
+  100% { border-left: 3px solid rgb(82, 139, 255); }
+}
+
+.hiddenInput {
+  width: 3px;
+  line-height: 21px;
+  position: absolute;
+  outline: none;
+  border: none;
+  appearance: none;
+  background-color: rgba(200, 200, 200, 0.5);
+  color: transparent;
+}
+
+.hiddenInput:focus {
+  animation: focuspointer .7s infinite;
+}
