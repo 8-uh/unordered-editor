@@ -7,14 +7,15 @@ module.exports =
     handleKeyDown: (e) =>
       switch e.keyCode
         when 27
-          @buffer.virtualMode = true
-          @buffer.inputStartColumn = -1
-          {cursorRow, cursorColumn} = @buffer.state
-          cursorColumn -= 1 if cursorColumn > 0
-          @buffer.setState {hiddenInputValue: ''}
-          @buffer.updateCursorPosition cursorRow, cursorColumn
+          if not @buffer.virtualMode
+            @buffer.virtualMode = true
+            @buffer.inputStartColumn = -1
+            {cursorRow, cursorColumn} = @buffer.state
+            cursorColumn -= 1 if cursorColumn > 0
+            @buffer.setState {hiddenInputValue: ''}
+            @buffer.updateCursorPosition cursorRow, cursorColumn
 
-      if @buffer.virtualMode
+      if @buffer.virtualMode and e.keyCode isnt 229
         e.preventDefault() if e.key isnt 'r'
         switch e.key
           when 'i'

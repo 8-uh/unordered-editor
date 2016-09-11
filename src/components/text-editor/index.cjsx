@@ -68,25 +68,25 @@ module.exports =
       cursorRow = contentRows.length - 1 if cursorRow > contentRows.length - 1
       cursorRow = 0 if cursorRow < 0
       line = contentRows[cursorRow] || ''
-      line = line.concat '\n' if not line.endsWith '\n'
       cursorX = 0
       cursorColumn = -1
       for char, index in line
-        charWidth = if char.charCodeAt() <= 255 then @defaultCharWidth else @doubleCharWidth
-        if x >= cursorX and x < cursorX + charWidth
+        cursorWidth = if char.charCodeAt() > 255 then @doubleCharWidth else @defaultCharWidth
+        if x >= cursorX and x < cursorX + cursorWidth
           cursorColumn = index
           break
-        cursorX += charWidth
-      cursorX = cursorX - (line.slice(-1).charCodeAt() <= 255 && @defaultCharWidth || @doubleCharWidth) if cursorColumn is -1
-      cursorColumn = line.length > 0 && line.length - 1 || 0 if cursorColumn is -1
-      if  @virtualMode and cursorColumn > 0
+        cursorX += cursorWidth
+      cursorX = cursorX - (line.slice(-1).charCodeAt() > 255 && @doubleCharWidth || @defaultCharWidth) if cursorColumn is -1
+      if @virtualMode and line.endsWith '\n'
+        cursorWidth = line.slice(-2)[0].charCodeAt() > 255 and @doubleCharWidth or @defaultCharWidth
         cursorColumn -= 1
-        cursorX -= @defaultCharWidth
-
+        cursorX -= cursorWidth
+      cursorX = 0 if cursorX < 0
+      cursorColumn = line.length > 0 && line.length - 1 || 0 if cursorColumn is -1
       cursorY = cursorRow * @lineHeight
       @setState {
         cursorRow, cursorColumn
-        cursorWidth: @virtualMode and @defaultCharWidth or @insertCursorWidth
+        cursorWidth: @virtualMode and cursorWidth or @insertCursorWidth
         cursorHeight: @lineHeight
         cursorX, cursorY, hiddenInputValue: ''
       }
@@ -97,18 +97,18 @@ module.exports =
       {contentRows} = @state
       line = contentRows[cursorRow] || ''
       cursorX = 0
+      cursorWidth = 0
       for char, index in line
-        charWidth = if char.charCodeAt() <= 255 then @defaultCharWidth else @doubleCharWidth
+        cursorWidth = if char.charCodeAt() > 255 then @doubleCharWidth else @defaultCharWidth
         break if index >= cursorColumn
-        cursorX += charWidth
+        cursorX += cursorWidth
       cursorY = cursorRow * @lineHeight
       # test
       if cursorColumn < 0 or cursorColumn > line.length
         throw new Error "cursorColumn is #{cursorColumn}, is less 0 or greater line length #{line.length}"
-      console.log @virtualMode
       @setState {
         cursorRow, cursorColumn, cursorX, cursorY,
-        cursorWidth: @virtualMode and @defaultCharWidth or @insertCursorWidth
+        cursorWidth: @virtualMode and cursorWidth or @insertCursorWidth
       }
 
     pasteText: (texts) =>
@@ -190,8 +190,7 @@ module.exports =
 
     render: ->
       {contentRows, cursorX, cursorY, cursorWidth, cursorHeight, hiddenInputValue} = @state
-      contentRows = contentRows.map (i, index) ->
-        TextTransformer.transform i
+      contentRows = TextTransformer.transform contentRows
       editorProps = {contentRows, cursorX, cursorY, cursorWidth, cursorHeight,
         hiddenInputValue, @onEditorMouseDown, @setEditorOptions,
         @onHiddenInputChange, @onHiddenInputKeyDown, @onHiddenInputPaste,
