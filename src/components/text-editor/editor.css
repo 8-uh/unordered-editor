@@ -22,6 +22,7 @@
       display: inline-block;
     }
 
+    u-space,
     u-enter {
       color: rgb(59, 64, 72);
     }
@@ -29,18 +30,19 @@
 }
 
 @keyframes focuspointer {
-  0% { border-left: 3px solid transparent; }
-  100% { border-left: 3px solid rgb(82, 139, 255); }
+  0% { border-left: 2px solid transparent; }
+  100% { border-left: 2px solid rgb(82, 139, 255); }
 }
 
 .hiddenInput {
-  width: 3px;
+  width: 0;
   line-height: 21px;
   position: absolute;
   outline: none;
   border: none;
   appearance: none;
-  background-color: rgba(200, 200, 200, 0.5);
+  /*background-color: rgba(200, 200, 200, 0.5);*/
+  background-color: transparent;
   color: transparent;
 }
 

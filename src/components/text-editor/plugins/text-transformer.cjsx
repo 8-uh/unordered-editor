@@ -5,6 +5,8 @@ module.exports =
     @transform: (rows) ->
       rows.map (i, index) ->
         if i.endsWith '\n'
-          <span key={index}>{i[...-1].replace /\s/g, '·'}<u-enter>¬</u-enter></span>
+          <span key={index}>{i[...-1].split(' ').map((i, index, arr) ->
+            [<span key={index * 2}>{i}</span>,index isnt arr.length - 1 and <u-space key={index * 2 + 1}>·</u-space>])}<u-enter>¬</u-enter></span>
         else
-          <span key={index}>{i.replace /\s/g, '·'}</span>
+          <span key={index}>{i.split(' ').map((i, index, arr) ->
+            [<span key={index * 2}>{i}</span>,index isnt arr.length - 1 and <u-space key={index * 2 + 1}>·</u-space>])}</span>

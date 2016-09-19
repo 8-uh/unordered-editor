@@ -1,198 +1,59 @@
 {Component, createElement} = require 'react'
 Editor = require './editor'
+EditorBuffer = require 'unordered-editor-buffer'
 TextTransformer = require './plugins/text-transformer'
-VimMode = require './plugins/vim-mode'
 
 module.exports =
   class UnorderedEditor extends Component
     constructor: (props) ->
       super props
-      @virtualMode = false
-      @onHiddenInputKeyDownListeners = []
-      @onHiddenInputKeyPressListeners = []
-      @defaultCharWidth = 0
-      @defaultCharHeight = 0
-      @doubleCharWidth = 0
-      @doubleCharHeight = 0
-      @lineHeight = 0
-      @insertCursorWidth = 3
-      @inputStartColumn = -1
-      @inputEndColumn = -1
+      @buffer = new EditorBuffer()
+      @buffer.initBuffer ''
+      @inputValuePosition =
+        startCol: -1
+        endCol: -1
       @state =
-        cursorX: 0
-        cursorY: 0
-        cursorWidth: 0
-        cursorHeight: 0
-        cursorRow: 0
-        cursorColumn: 0
         hiddenInputValue: ''
-        contentRows: []
-      new VimMode(@)
-
-    addHiddenInputKeyDownListener: (callback) =>
-      @onHiddenInputKeyDownListeners.push callback
-
-    addHiddenInputKeyPressListener: (callback) =>
-      @onHiddenInputKeyPressListeners.push callback
+        updateTime: 0
 
     setEditorOptions: (options) =>
-      {@defaultCharWidth, @defaultCharHeight, @doubleCharWidth,
-        @doubleCharHeight, @lineHeight} = options
-
-    onHiddenInputChange: (value) =>
-      @insertText(value) if not @virtualMode
-
-    onHiddenInputPaste: (e) =>
-      e.preventDefault()
-      if not @virtualMode
-        data = e.clipboardData.getData('text/plain').split('\n')
-        @pasteText data
-
-    onHiddenInputKeyDown: (e) =>
-      if not @virtualMode
-        if e.keyCode is 13 # enter
-          @insertEnter()
-        if e.keyCode is 8 # backspace
-          @insertBackspace()
-      callback(e) for callback in @onHiddenInputKeyDownListeners
-
-    onHiddenInputKeyPress: (e) =>
-      callback(e) for callback in @onHiddenInputKeyPressListeners
+      @buffer.setOptions options
+      @buffer.setOptions
+        updateEditor: () =>
+          @setState {updateTime: new Date().getTime()}
 
     onEditorMouseDown: (e, editorRect) =>
+      @inputValuePosition.startCol = -1
+      @setState {hiddenInputValue: ''}
       x = e.clientX - editorRect.left
       y = e.clientY - editorRect.top
-      @inputStartColumn = @inputEndColumn = -1
-      {contentRows, cursorWidth, cursorColumn} = @state
-      cursorRow = Math.floor(y / @lineHeight)
-      cursorRow = contentRows.length - 1 if cursorRow > contentRows.length - 1
-      cursorRow = 0 if cursorRow < 0
-      line = contentRows[cursorRow] || ''
-      cursorX = 0
-      cursorColumn = -1
-      for char, index in line
-        cursorWidth = if char.charCodeAt() > 255 then @doubleCharWidth else @defaultCharWidth
-        if x >= cursorX and x < cursorX + cursorWidth
-          cursorColumn = index
-          break
-        cursorX += cursorWidth
-      cursorX = cursorX - (line.slice(-1).charCodeAt() > 255 && @doubleCharWidth || @defaultCharWidth) if cursorColumn is -1
-      if @virtualMode and line.endsWith '\n'
-        cursorWidth = line.slice(-2)[0].charCodeAt() > 255 and @doubleCharWidth or @defaultCharWidth
-        cursorColumn -= 1
-        cursorX -= cursorWidth
-      cursorX = 0 if cursorX < 0
-      cursorColumn = line.length > 0 && line.length - 1 || 0 if cursorColumn is -1
-      cursorY = cursorRow * @lineHeight
-      @setState {
-        cursorRow, cursorColumn
-        cursorWidth: @virtualMode and cursorWidth or @insertCursorWidth
-        cursorHeight: @lineHeight
-        cursorX, cursorY, hiddenInputValue: ''
-      }
+      @buffer.setCursor x, y
 
-    updateCursorPosition: (cursorRow, cursorColumn) =>
-      cursorRow ?= @state.cursorRow
-      cursorColumn ?= @state.cursorColumn
-      {contentRows} = @state
-      line = contentRows[cursorRow] || ''
-      cursorX = 0
-      cursorWidth = 0
-      for char, index in line
-        cursorWidth = if char.charCodeAt() > 255 then @doubleCharWidth else @defaultCharWidth
-        break if index >= cursorColumn
-        cursorX += cursorWidth
-      cursorY = cursorRow * @lineHeight
-      # test
-      if cursorColumn < 0 or cursorColumn > line.length
-        throw new Error "cursorColumn is #{cursorColumn}, is less 0 or greater line length #{line.length}"
-      @setState {
-        cursorRow, cursorColumn, cursorX, cursorY,
-        cursorWidth: @virtualMode and cursorWidth or @insertCursorWidth
-      }
+    onHiddenInputChange: (value) =>
+      @setState {hiddenInputValue: value}
+      if @inputValuePosition.startCol is -1
+        cursor = @buffer.getCursor()
+        lineLength = @buffer.getBuffer()[cursor.cursorRow].length
+        @inputValuePosition =
+          startCol: cursor.cursorCol
+          endCol: lineLength - cursor.cursorCol
+      @buffer.setRangeTextInLine value, @inputValuePosition.startCol, -@inputValuePosition.endCol
 
-    pasteText: (texts) =>
-      {contentRows, cursorRow, cursorColumn} = @state
-      line = contentRows[cursorRow] || ''
-      if texts[0] is ''
-        texts = texts[1..]
-        newLine = line[...cursorColumn] + '\n'
-        newLineNext = line[cursorColumn..]
-        contentRows = [contentRows[...cursorRow]..., newLine, newLineNext, contentRows[cursorRow + 1..]...]
-        cursorRow += 1
-        cursorColumn = 0
-        if texts.slice(-1)[0] is ''
-          contentRows = [contentRows[...cursorRow]..., texts[0...-1].map((i) -> i.concat '\n')..., '\n', contentRows[cursorRow..]...]
-          cursorRow += texts.length
-        else
-          contentRows = [contentRows[...cursorRow]..., texts[0...-1].map((i) -> i.concat '\n')..., texts[texts.length - 1].concat contentRows[cursorRow], contentRows[cursorRow + 1..]...]
-          cursorRow += texts.length - 1
-      else
-        if texts.length is 1
-          newLine = line[...cursorColumn].concat(texts[0]).concat line[cursorColumn..]
-          contentRows[cursorRow] = newLine
-          cursorColumn += texts[0].length
-        else if texts.slice(-1)[0] is ''
-          newLine = line[...cursorColumn].concat(texts[0]).concat '\n'
-          newLineNext = line[cursorColumn..]
-          contentRows = [contentRows[...cursorRow]..., newLine, texts[1...-1].map((i) -> i.concat '\n')..., newLineNext, contentRows[cursorRow + 1..]...]
-          cursorColumn = 0
-          cursorRow += texts.length - 1
-        else
-          newLine = line[...cursorColumn].concat(texts[0]).concat '\n'
-          newLineNext = line[cursorColumn..]
-          contentRows = [contentRows[...cursorRow]..., newLine, texts[1...-1].map((i) -> i.concat '\n')..., texts[texts.length - 1].concat newLineNext, contentRows[cursorRow + 1..]...]
-          cursorColumn = texts[texts.length - 1].length
-          cursorRow += texts.length - 1
-      @setState {contentRows, hiddenInputValue: ''}, () ->
-        @updateCursorPosition cursorRow, cursorColumn
-
-    insertText: (text) =>
-      {contentRows, cursorRow, cursorColumn} = @state
-      line = contentRows[cursorRow] || ''
-      if @inputStartColumn is -1
-        @inputStartColumn = cursorColumn
-        @inputEndColumn = line.length - cursorColumn
-      line = [line[...@inputStartColumn], text, if @inputEndColumn > 0 then line[-@inputEndColumn..] else ''].join('')
-      cursorColumn = @inputStartColumn + text.length
-      contentRows[cursorRow] = line
-      @setState {contentRows, hiddenInputValue: text}
-      @updateCursorPosition cursorRow, cursorColumn
-
-    insertBackspace: () =>
-      {contentRows, cursorRow, cursorColumn, hiddenInputValue} = @state
-      line = contentRows[cursorRow] || ''
-      if cursorColumn is 0
-        if cursorRow isnt 0
-          previousLine = contentRows[cursorRow - 1]
-          cursorColumn = previousLine.length - 1
-          combinedLine = previousLine.trimRight().concat line
-          contentRows = [contentRows[...cursorRow - 1]..., combinedLine, contentRows[cursorRow + 1..]...]
-          cursorRow -= 1
-      else
-        line = [line[...cursorColumn - 1], line[cursorColumn..]].join ''
-        contentRows[cursorRow] = line
-        cursorColumn -= 1
-      @setState {contentRows}
-      @updateCursorPosition cursorRow, cursorColumn
-
-    insertEnter: () =>
-      @inputStartColumn = -1
-      {contentRows, cursorRow, cursorColumn} = @state
-      line = contentRows[cursorRow] || ''
-      newLine = line[...cursorColumn] + '\n'
-      newLineNext = line[cursorColumn..]
-      contentRows = [contentRows[...cursorRow]..., newLine, newLineNext, contentRows[cursorRow + 1..]...]
-      cursorRow += 1
-      cursorColumn = 0
-      @setState {contentRows, hiddenInputValue: ''}
-      @updateCursorPosition cursorRow, cursorColumn
+    onHiddenInputKeyDown: (e) =>
+      if e.keyCode is 13 # enter
+        @inputValuePosition.startCol = -1
+        @setState {hiddenInputValue: ''}
+        @buffer.insertText '\n'
+      if e.keyCode is 8 # backspace
+        @buffer.deleteChar()
 
     render: ->
-      {contentRows, cursorX, cursorY, cursorWidth, cursorHeight, hiddenInputValue} = @state
-      contentRows = TextTransformer.transform contentRows
-      editorProps = {contentRows, cursorX, cursorY, cursorWidth, cursorHeight,
-        hiddenInputValue, @onEditorMouseDown, @setEditorOptions,
-        @onHiddenInputChange, @onHiddenInputKeyDown, @onHiddenInputPaste,
-        @onHiddenInputKeyPress}
+      bufferRows = TextTransformer.transform @buffer.getBuffer()
+      {cursorX, cursorY, cursorRow, cursorCol, cursorWidth} = @buffer.getCursor()
+      {hiddenInputValue} = @state
+      editorProps = {
+        bufferRows, cursorX, cursorY, cursorWidth, cursorHeight: 21,
+        hiddenInputValue, @setEditorOptions, @onEditorMouseDown,
+        @onHiddenInputChange, @onHiddenInputKeyDown
+      }
       createElement Editor, editorProps
