@@ -14,6 +14,7 @@ module.exports = class TextEditor extends Component
     setEditorOptions: PropTypes.func.isRequired
     onEditorMouseDown: PropTypes.func.isRequired
     hiddenInputValue: PropTypes.string.isRequired
+    hiddenInputStyle: PropTypes.object.isRequired
     onHiddenInputChange: PropTypes.func.isRequired
     onHiddenInputKeyDown: PropTypes.func.isRequired
 
@@ -35,12 +36,12 @@ module.exports = class TextEditor extends Component
 
   render: ->
     {bufferRows, cursorX, cursorY, cursorWidth, cursorHeight, hiddenInputValue,
-      onHiddenInputChange, onHiddenInputKeyDown} = @props
-    hiddenInputStyle =
+      hiddenInputStyle, onHiddenInputChange, onHiddenInputKeyDown} = @props
+    hiddenInputStyle = Object.assign {
       left: cursorX
       top: cursorY
       width: cursorWidth
-      height: cursorHeight
+      height: cursorHeight}, hiddenInputStyle
     <div ref='editorRoot' onContextMenu={@onEditorContextMenu} onMouseUp={@onEditorMouseUp} onMouseDown={@onEditorMouseDown} className={style.root}>
       <u-dummy>
         <span data-no-block ref='dummyDefaultChar'>x</span>

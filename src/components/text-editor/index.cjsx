@@ -3,57 +3,106 @@ Editor = require './editor'
 EditorBuffer = require 'unordered-editor-buffer'
 TextTransformer = require './plugins/text-transformer'
 
+VIM = require('unordered-editor-vim')
+
 module.exports =
   class UnorderedEditor extends Component
     constructor: (props) ->
       super props
-      @buffer = new EditorBuffer()
-      @buffer.initBuffer ''
-      @inputValuePosition =
+      @_buffer = new EditorBuffer()
+      @_buffer.initBuffer ''
+      @_inputEnabled = true
+      @_plugins = []
+      @_inputChangeListeners = []
+      @_inputKeyDownListeners = []
+      @_inputKeyUpListeners = []
+      @_editorMouseDownListeners = []
+      @_editorMouseUpListeners = []
+      @_hiddenInputStyle = {}
+      @_inputValuePosition =
         startCol: -1
         endCol: -1
       @state =
         hiddenInputValue: ''
         updateTime: 0
 
+    componentDidMount: ->
+      @_plugins = @_plugins.concat new VIM @
+
+    getBuffer: -> @_buffer
+
+    setInputEnabled: (enabled) ->
+      @_inputEnabled = enabled
+
+    isInputEnabled: -> @_inputEnabled
+
+    setInputValue: (text) ->
+      @setState {hiddenInputValue: text}
+
+    setInputStyle: (style) ->
+      @_hiddenInputStyle = style
+
+    resetInput: ->
+      @_inputValuePosition.startCol = -1
+
+    addInputChangeListener: (listener) ->
+      @_inputChangeListeners = @_inputChangeListeners.concat listener
+
+    addInputKeyDownListener: (listener) ->
+      @_inputKeyDownListeners = @_inputKeyDownListeners.concat listener
+
+    addInputKeyUpListener: (listener) ->
+      @_inputKeyUpListeners = @_inputKeyUpListeners.concat listener
+
+    addEditorMouseDownListener: (listener) ->
+      @_editorMouseDownListeners = @_editorMouseDownListeners.concat listener
+
+    addEditorMouseUpListener: (listener) ->
+      @_editorMouseUpListeners = @_editorMouseUpListeners.concat listener
+
     setEditorOptions: (options) =>
-      @buffer.setOptions options
-      @buffer.setOptions
+      @_buffer.setOptions options
+      @_buffer.setOptions
         updateEditor: () =>
           @setState {updateTime: new Date().getTime()}
 
     onEditorMouseDown: (e, editorRect) =>
-      @inputValuePosition.startCol = -1
+      @_inputValuePosition.startCol = -1
       @setState {hiddenInputValue: ''}
       x = e.clientX - editorRect.left
       y = e.clientY - editorRect.top
-      @buffer.setCursor x, y
+      @_buffer.setCursor x, y
+      @_editorMouseDownListeners.map (callback) -> callback()
 
     onHiddenInputChange: (value) =>
       @setState {hiddenInputValue: value}
-      if @inputValuePosition.startCol is -1
-        cursor = @buffer.getCursor()
-        lineLength = @buffer.getBuffer()[cursor.cursorRow].length
-        @inputValuePosition =
+      @_inputChangeListeners.map (callback) -> callback value
+      return unless @_inputEnabled
+      if @_inputValuePosition.startCol is -1
+        cursor = @_buffer.getCursor()
+        lineLength = @_buffer.getBuffer()[cursor.cursorRow].length
+        @_inputValuePosition =
           startCol: cursor.cursorCol
           endCol: lineLength - cursor.cursorCol
-      @buffer.setRangeTextInLine value, @inputValuePosition.startCol, -@inputValuePosition.endCol
+      @_buffer.setRangeTextInLine value, @_inputValuePosition.startCol, -@_inputValuePosition.endCol
 
     onHiddenInputKeyDown: (e) =>
+      @_inputKeyDownListeners.map (callback) -> callback e
+      return unless @_inputEnabled
       if e.keyCode is 13 # enter
-        @inputValuePosition.startCol = -1
+        @_inputValuePosition.startCol = -1
         @setState {hiddenInputValue: ''}
-        @buffer.insertText '\n'
+        @_buffer.insertText '\n'
       if e.keyCode is 8 # backspace
-        @buffer.deleteChar()
+        @_buffer.deleteChar()
 
     render: ->
-      bufferRows = TextTransformer.transform @buffer.getBuffer()
-      {cursorX, cursorY, cursorRow, cursorCol, cursorWidth} = @buffer.getCursor()
+      bufferRows = TextTransformer.transform @_buffer.getBuffer()
+      {cursorX, cursorY, cursorRow, cursorCol, cursorWidth} = @_buffer.getCursor()
       {hiddenInputValue} = @state
       editorProps = {
         bufferRows, cursorX, cursorY, cursorWidth, cursorHeight: 21,
         hiddenInputValue, @setEditorOptions, @onEditorMouseDown,
-        @onHiddenInputChange, @onHiddenInputKeyDown
+        @onHiddenInputChange, @onHiddenInputKeyDown, hiddenInputStyle: @_hiddenInputStyle
       }
       createElement Editor, editorProps
