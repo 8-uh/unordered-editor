@@ -1,16 +1,19 @@
-{Component, createElement} = require 'react'
+{PropTypes, Component, createElement} = require 'react'
 Editor = require './editor'
 EditorBuffer = require 'unordered-editor-buffer'
-TextTransformer = require './plugins/text-transformer'
+TextTransformer = require './utils/text-transformer'
 
 VIM = require('unordered-editor-vim')
 
 module.exports =
   class UnorderedEditor extends Component
+    @propTypes:
+      content: PropTypes.string
+
     constructor: (props) ->
       super props
       @_buffer = new EditorBuffer()
-      @_buffer.initBuffer ''
+      @_buffer.initBuffer @props.content or ''
       @_inputEnabled = true
       @_plugins = []
       @_inputChangeListeners = []
@@ -25,6 +28,11 @@ module.exports =
       @state =
         hiddenInputValue: ''
         updateTime: 0
+
+    componentWillReceiveProps: (props) ->
+      @_buffer.initBuffer props.content or ''
+      @_inputValuePosition.startCol = -1
+      @_buffer.setCursorPosition 0, 0
 
     componentDidMount: ->
       @_plugins = @_plugins.concat new VIM @
