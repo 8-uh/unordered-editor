@@ -22,16 +22,27 @@ module.exports =
       @_editorMouseDownListeners = []
       @_editorMouseUpListeners = []
       @_hiddenInputStyle = {}
-      @_inputValuePosition =
+      @_inputPositionCheckpoint =
         startCol: -1
-        endCol: -1
+        endCol: -1 # it's inverted column
       @state =
         hiddenInputValue: ''
         updateTime: 0
 
+    _clearInputPositionCheckpoint: ->
+      @_inputPositionCheckpoint =
+        startCol: -1
+        endCol: -1
+
+    _setInputPositionCheckpoint: (startCol, endCol) ->
+      @_inputPositionCheckpoint = {startCol, endCol}
+
+    _isSetInputPositionCheckpoint: ->
+      @_inputPositionCheckpoint.startCol isnt -1 and @_inputPositionCheckpoint.endCol isnt -1
+
     componentWillReceiveProps: (props) ->
       @_buffer.initBuffer props.content or ''
-      @_inputValuePosition.startCol = -1
+      @_clearInputPositionCheckpoint()
       @_buffer.setCursorPosition 0, 0
 
     componentDidMount: ->
@@ -51,7 +62,7 @@ module.exports =
       @_hiddenInputStyle = style
 
     resetInput: ->
-      @_inputValuePosition.startCol = -1
+      @_clearInputPositionCheckpoint()
 
     addInputChangeListener: (listener) ->
       @_inputChangeListeners = @_inputChangeListeners.concat listener
@@ -75,7 +86,7 @@ module.exports =
           @setState {updateTime: new Date().getTime()}
 
     onEditorMouseDown: (e, editorRect) =>
-      @_inputValuePosition.startCol = -1
+      @_clearInputPositionCheckpoint()
       @setState {hiddenInputValue: ''}
       x = e.clientX - editorRect.left
       y = e.clientY - editorRect.top
@@ -86,19 +97,17 @@ module.exports =
       @setState {hiddenInputValue: value}
       @_inputChangeListeners.map (callback) -> callback value
       return unless @_inputEnabled
-      if @_inputValuePosition.startCol is -1
+      if not @_isSetInputPositionCheckpoint()
         cursor = @_buffer.getCursor()
         lineLength = @_buffer.getRows()[cursor.cursorRow].length
-        @_inputValuePosition =
-          startCol: cursor.cursorCol
-          endCol: lineLength - cursor.cursorCol
-      @_buffer.setRangeTextInLineInvertedEndCol value, @_inputValuePosition.startCol, -@_inputValuePosition.endCol
+        @_setInputPositionCheckpoint cursor.cursorCol, lineLength - cursor.cursorCol
+      @_buffer.setRangeTextInLineInvertedEndCol value, @_inputPositionCheckpoint.startCol, -@_inputPositionCheckpoint.endCol
 
     onHiddenInputKeyDown: (e) =>
       @_inputKeyDownListeners.map (callback) -> callback e
       return unless @_inputEnabled
       if e.keyCode is 13 # enter
-        @_inputValuePosition.startCol = -1
+        @_clearInputPositionCheckpoint()
         @setState {hiddenInputValue: ''}
         @_buffer.insertText '\n'
       if e.keyCode is 8 # backspace
