@@ -112,6 +112,11 @@ module.exports =
         @_buffer.insertText '\n'
       if e.keyCode is 8 # backspace
         @_buffer.deletePreviousChar()
+      if e.keyCode is 9 # tab
+        e.preventDefault()
+        @_clearInputPositionCheckpoint()
+        @setState {hiddenInputValue: ''}
+        @_buffer.insertText '  '
 
     render: ->
       bufferRows = TextTransformer.transform @_buffer.getRows()
