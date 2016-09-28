@@ -3,7 +3,7 @@ Editor = require './editor'
 EditorBuffer = require 'unordered-editor-buffer'
 TextTransformer = require './utils/text-transformer'
 
-VIM = require('unordered-editor-vim')
+# VIM = require('unordered-editor-vim')
 
 module.exports =
   class UnorderedEditor extends Component
@@ -35,7 +35,7 @@ module.exports =
       @_buffer.setCursorPosition 0, 0
 
     componentDidMount: ->
-      @_plugins = @_plugins.concat new VIM @
+      # @_plugins = @_plugins.concat new VIM @
 
     getBuffer: -> @_buffer
 
@@ -79,7 +79,7 @@ module.exports =
       @setState {hiddenInputValue: ''}
       x = e.clientX - editorRect.left
       y = e.clientY - editorRect.top
-      @_buffer.setCursor x, y
+      @_buffer.setCursorCoords x, y
       @_editorMouseDownListeners.map (callback) -> callback()
 
     onHiddenInputChange: (value) =>
@@ -88,11 +88,11 @@ module.exports =
       return unless @_inputEnabled
       if @_inputValuePosition.startCol is -1
         cursor = @_buffer.getCursor()
-        lineLength = @_buffer.getBuffer()[cursor.cursorRow].length
+        lineLength = @_buffer.getRows()[cursor.cursorRow].length
         @_inputValuePosition =
           startCol: cursor.cursorCol
           endCol: lineLength - cursor.cursorCol
-      @_buffer.setRangeTextInLine value, @_inputValuePosition.startCol, -@_inputValuePosition.endCol
+      @_buffer.setRangeTextInLineInvertedEndCol value, @_inputValuePosition.startCol, -@_inputValuePosition.endCol
 
     onHiddenInputKeyDown: (e) =>
       @_inputKeyDownListeners.map (callback) -> callback e
@@ -102,10 +102,10 @@ module.exports =
         @setState {hiddenInputValue: ''}
         @_buffer.insertText '\n'
       if e.keyCode is 8 # backspace
-        @_buffer.deleteChar()
+        @_buffer.deletePreviousChar()
 
     render: ->
-      bufferRows = TextTransformer.transform @_buffer.getBuffer()
+      bufferRows = TextTransformer.transform @_buffer.getRows()
       {cursorX, cursorY, cursorRow, cursorCol, cursorWidth} = @_buffer.getCursor()
       {hiddenInputValue} = @state
       editorProps = {

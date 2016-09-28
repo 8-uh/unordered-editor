@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "react": "^15.3.2",
-    "unordered-editor-buffer": "0.0.1",
-    "unordered-editor-vim": "0.0.1"
+    "unordered-editor-buffer": "0.0.2",
+    "unordered-editor-vim": "^1.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^6.4.1",

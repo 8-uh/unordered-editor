@@ -1,10 +1,21 @@
 .root {
+  line-height: 21px;
+  cursor: default;
+  font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
   position: relative;
   min-height: 100%;
   min-width: 100%;
   display: inline-block;
   background-color: rgb(40, 44, 52);
   color: rgb(171, 178, 191);
+  box-sizing: border-box;
+  user-select: none;
+
+  * {
+    display: block;
+    box-sizing: border-box;
+    user-select: none;
+  }
 
   > u-dummy {
     position: absolute;
