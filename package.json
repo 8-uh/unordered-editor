@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "react": "^15.3.2",
-    "unordered-editor-buffer": "0.0.2",
+    "unordered-editor-buffer": "^1.0.0",
     "unordered-editor-vim": "^1.0.1"
   },
   "devDependencies": {
