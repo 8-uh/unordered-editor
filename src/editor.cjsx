@@ -23,7 +23,17 @@ module.exports = class TextEditor extends Component
     defaultCharWidth = dummyDefaultChar.getBoundingClientRect().width
     doubleCharWidth = dummyDoubleChar.getBoundingClientRect().width
     lineHeight = 21
-    @props.setEditorOptions {defaultCharWidth, doubleCharWidth, lineHeight}
+    @props.setEditorOptions {defaultCharWidth, doubleCharWidth, lineHeight, @setScroll}
+
+  componentWillReceiveProps: (props) ->
+    {cursorY} = props
+    {scrollTop, offsetHeight} = @refs.editor
+    if cursorY > offsetHeight + scrollTop - 128
+      @refs.editor.scrollTop = cursorY - offsetHeight + 128
+
+  setScroll: (top, left) =>
+    @refs.editorWrapper.scrollTop = top
+    # @refs.editorWrapper.scrollTop = top
 
   onEditorMouseDown: (e) =>
     e.stopPropagation()
@@ -44,12 +54,12 @@ module.exports = class TextEditor extends Component
       top: cursorY
       width: cursorWidth
       height: cursorHeight}, hiddenInputStyle
-    <u-editor class={style.root}>
+    <u-editor class={style.root} ref='editor'>
       <u-line-numbers>
         {bufferRows.map (i, index) ->
           <u-line-number key={index}>{index + 1}</u-line-number>}
       </u-line-numbers>
-      <u-editor-wrapper onMouseDown={@onEditorMouseDown} onMouseUp={@onEditorMouseUp} onContextMenu={@onEditorContextMenu}>
+      <u-editor-wrapper ref='editorWrapper' onMouseDown={@onEditorMouseDown} onMouseUp={@onEditorMouseUp} onContextMenu={@onEditorContextMenu}>
         <u-editor-area ref='editorRoot' onMouseUp={@onEditorMouseUp} onMouseDown={@onEditorMouseDown}>
           <u-dummy>
             <span data-no-block ref='dummyDefaultChar'>x</span>
