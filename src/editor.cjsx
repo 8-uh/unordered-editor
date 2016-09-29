@@ -23,17 +23,22 @@ module.exports = class TextEditor extends Component
     defaultCharWidth = dummyDefaultChar.getBoundingClientRect().width
     doubleCharWidth = dummyDoubleChar.getBoundingClientRect().width
     lineHeight = 21
-    @props.setEditorOptions {defaultCharWidth, doubleCharWidth, lineHeight, @setScroll}
+    @props.setEditorOptions {defaultCharWidth, doubleCharWidth, lineHeight}
 
   componentWillReceiveProps: (props) ->
-    {cursorY} = props
+    {cursorX, cursorY, cursorHeight, cursorWidth} = props
     {scrollTop, offsetHeight} = @refs.editor
-    if cursorY > offsetHeight + scrollTop - 128
-      @refs.editor.scrollTop = cursorY - offsetHeight + 128
-
-  setScroll: (top, left) =>
-    @refs.editorWrapper.scrollTop = top
-    # @refs.editorWrapper.scrollTop = top
+    if cursorY > offsetHeight + scrollTop - cursorHeight * 4
+      @refs.editor.scrollTop += cursorHeight
+    else if cursorY < scrollTop + cursorHeight * 4
+      @refs.editor.scrollTop -= cursorHeight
+    {scrollLeft, offsetWidth} = @refs.editorWrapper
+    if cursorX > scrollLeft + offsetWidth - cursorWidth * 4
+      @refs.editorWrapper.scrollLeft += cursorWidth
+    else if cursorX < scrollLeft + cursorWidth * 4
+      @refs.editorWrapper.scrollLeft -= cursorWidth
+    if cursorX < @refs.editorWrapper.scrollLeft
+      @refs.editorWrapper.scrollLeft = 0
 
   onEditorMouseDown: (e) =>
     e.stopPropagation()
