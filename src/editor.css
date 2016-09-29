@@ -3,9 +3,11 @@
   cursor: default;
   font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
   position: relative;
-  min-height: 100%;
-  min-width: 100%;
-  display: inline-block;
+  height: 100%;
+  width: 100%;
+  display: block;
+  overflow-y: auto;
+  overflow-x: hidden;
   background-color: rgb(40, 44, 52);
   color: rgb(171, 178, 191);
   box-sizing: border-box;
@@ -17,25 +19,52 @@
     user-select: none;
   }
 
-  > u-dummy {
+  > u-line-numbers {
+    border-right: 1px solid rgb(60, 64, 73);
     position: absolute;
-    visibility: hidden;
-
-    > span {
-      display: inline;
-    }
+    left: 0;
+    top: 0;
+    width: 50px;
+    min-height: 100%;
   }
 
-  > u-line {
-    white-space: nowrap;
+  > u-editor-wrapper {
+    position: absolute;
+    left: 50px;
+    top: 0;
+    right: 0;
+    min-height: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
 
-    * {
+    > u-editor-area {
+      overflow-x: auto;
       display: inline-block;
-    }
+      position: relative;
+      min-height: 100%;
+      min-width: 100%;
 
-    u-space,
-    u-enter {
-      color: rgb(59, 64, 72);
+      > u-dummy {
+        position: absolute;
+        visibility: hidden;
+
+        > span {
+          display: inline;
+        }
+      }
+
+      > u-line {
+        white-space: nowrap;
+
+        * {
+          display: inline-block;
+        }
+
+        u-space,
+        u-enter {
+          color: rgb(59, 64, 72);
+        }
+      }
     }
   }
 }

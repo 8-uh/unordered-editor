@@ -26,12 +26,14 @@ module.exports = class TextEditor extends Component
     @props.setEditorOptions {defaultCharWidth, doubleCharWidth, lineHeight}
 
   onEditorMouseDown: (e) =>
+    e.stopPropagation()
     @props.onEditorMouseDown e, @refs.editorRoot.getBoundingClientRect()
 
   onEditorContextMenu: (e) =>
     e.preventDefault()
 
   onEditorMouseUp: (e) =>
+    e.stopPropagation()
     @refs.hiddenInput.focus()
 
   render: ->
@@ -42,15 +44,23 @@ module.exports = class TextEditor extends Component
       top: cursorY
       width: cursorWidth
       height: cursorHeight}, hiddenInputStyle
-    <div ref='editorRoot' onContextMenu={@onEditorContextMenu} onMouseUp={@onEditorMouseUp} onMouseDown={@onEditorMouseDown} className={style.root}>
-      <u-dummy>
-        <span data-no-block ref='dummyDefaultChar'>x</span>
-        <span data-no-block ref='dummyDoubleChar'>我</span>
-      </u-dummy>
-      <input className={style.hiddenInput} ref='hiddenInput' style=hiddenInputStyle
-        value={hiddenInputValue}
-        onChange={(e) -> onHiddenInputChange e.target.value}
-        onKeyDown={(e) -> onHiddenInputKeyDown e} />
-      {bufferRows.map (i, index) ->
-        <u-line key={index}>{i}</u-line>}
-    </div>
+    <u-editor class={style.root}>
+      <u-line-numbers>
+        {bufferRows.map (i, index) ->
+          <u-line-number key={index}>{index + 1}</u-line-number>}
+      </u-line-numbers>
+      <u-editor-wrapper onMouseDown={@onEditorMouseDown} onMouseUp={@onEditorMouseUp} onContextMenu={@onEditorContextMenu}>
+        <u-editor-area ref='editorRoot' onMouseUp={@onEditorMouseUp} onMouseDown={@onEditorMouseDown}>
+          <u-dummy>
+            <span data-no-block ref='dummyDefaultChar'>x</span>
+            <span data-no-block ref='dummyDoubleChar'>我</span>
+          </u-dummy>
+          <input className={style.hiddenInput} ref='hiddenInput' style=hiddenInputStyle
+            value={hiddenInputValue}
+            onChange={(e) -> onHiddenInputChange e.target.value}
+            onKeyDown={(e) -> onHiddenInputKeyDown e} />
+          {bufferRows.map (i, index) ->
+            <u-line key={index}>{i}</u-line>}
+        </u-editor-area>
+      </u-editor-wrapper>
+    </u-editor>
