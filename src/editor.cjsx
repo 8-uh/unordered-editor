@@ -1,7 +1,7 @@
 React = {PropTypes, Component} = require 'react'
 style = require './editor.css'
 
-module.exports = class TextEditor extends Component
+module.exports = class Editor extends Component
   constructor: (props) ->
     super props
 
