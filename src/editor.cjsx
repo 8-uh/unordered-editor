@@ -8,6 +8,8 @@ module.exports = class TextEditor extends Component
   @propTypes:
     cursorX: PropTypes.number.isRequired
     cursorY: PropTypes.number.isRequired
+    cursorRow: PropTypes.number.isRequired
+    cursorCol: PropTypes.number.isRequired
     cursorWidth: PropTypes.number.isRequired
     cursorHeight: PropTypes.number.isRequired
     bufferRows: PropTypes.array.isRequired
@@ -52,7 +54,7 @@ module.exports = class TextEditor extends Component
     @refs.hiddenInput.focus()
 
   render: ->
-    {bufferRows, cursorX, cursorY, cursorWidth, cursorHeight, hiddenInputValue,
+    {bufferRows, cursorRow, cursorX, cursorY, cursorWidth, cursorHeight, hiddenInputValue,
       hiddenInputStyle, onHiddenInputChange, onHiddenInputKeyDown} = @props
     hiddenInputStyle = Object.assign {
       left: cursorX
@@ -75,7 +77,7 @@ module.exports = class TextEditor extends Component
             onChange={(e) -> onHiddenInputChange e.target.value}
             onKeyDown={(e) -> onHiddenInputKeyDown e} />
           {bufferRows.map (i, index) ->
-            <u-line key={index}>{i}</u-line>}
+            <u-line data-active={index is cursorRow} key={index}>{i}</u-line>}
         </u-editor-area>
       </u-editor-wrapper>
     </u-editor>

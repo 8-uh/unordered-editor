@@ -145,7 +145,7 @@ module.exports =
       {cursorX, cursorY, cursorRow, cursorCol, cursorWidth} = @_buffer.getCursor()
       {hiddenInputValue} = @state
       editorProps = {
-        bufferRows, cursorX, cursorY, cursorWidth, cursorHeight: 21,
+        bufferRows, cursorRow, cursorCol, cursorX, cursorY, cursorWidth, cursorHeight: 21,
         hiddenInputValue, @setEditorOptions, @onEditorMouseDown,
         @onHiddenInputChange, @onHiddenInputKeyDown, hiddenInputStyle: @_hiddenInputStyle
       }
