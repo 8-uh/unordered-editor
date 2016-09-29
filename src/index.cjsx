@@ -119,6 +119,26 @@ module.exports =
         @_clearInputPositionCheckpoint()
         @setState {hiddenInputValue: ''}
         @_buffer.insertText '  '
+      if e.keyCode is 37 # left
+        e.preventDefault()
+        @_clearInputPositionCheckpoint()
+        @setState {hiddenInputValue: ''}
+        @_buffer.moveCursorLeft()
+      if e.keyCode is 38 # up
+        e.preventDefault()
+        @_clearInputPositionCheckpoint()
+        @setState {hiddenInputValue: ''}
+        @_buffer.moveCursorUp()
+      if e.keyCode is 39 # right
+        e.preventDefault()
+        @_clearInputPositionCheckpoint()
+        @setState {hiddenInputValue: ''}
+        @_buffer.moveCursorRight()
+      if e.keyCode is 40 # down
+        e.preventDefault()
+        @_clearInputPositionCheckpoint()
+        @setState {hiddenInputValue: ''}
+        @_buffer.moveCursorDown()
 
     render: ->
       bufferRows = TextTransformer.transform @_buffer.getRows()
