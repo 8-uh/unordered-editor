@@ -6,12 +6,21 @@
   height: 100%;
   width: 100%;
   display: block;
-  overflow-y: auto;
+  overflow-y: scroll;
   overflow-x: hidden;
   background-color: rgb(40, 44, 52);
   color: rgb(171, 178, 191);
   box-sizing: border-box;
   user-select: none;
+  &::-webkit-scrollbar {
+    width: 2px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #eee;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: red;
+  }
 
   * {
     display: block;
@@ -36,9 +45,11 @@
     min-height: 100%;
     overflow-x: auto;
     overflow-y: visible;
+    &::-webkit-scrollbar {
+      display: none;
+    }
 
     > u-editor-area {
-      overflow-x: auto;
       display: inline-block;
       position: relative;
       min-height: 100%;
