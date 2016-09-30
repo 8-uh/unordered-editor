@@ -9,7 +9,12 @@ module.exports = class Footer extends Component
       rightItems: []
 
   registerLeftItem: (component) ->
-    @setState {leftItems: [@state.leftItems..., component]}
+    {leftItems} = @state
+    @setState {leftItems: [leftItems..., component]}
+
+  registerLeftItems: (components) ->
+    {leftItems} = @state
+    @setState {leftItems: [leftItems..., components...]}
 
   render: ->
     {leftItems, rightItems} = @state

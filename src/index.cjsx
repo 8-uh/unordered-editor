@@ -1,11 +1,13 @@
 React = {PropTypes, Component, createElement} = require 'react'
-Editor = require './editor-wrapper'
+Editor = require './editor'
+Pane = require './pane'
 Header = require './header'
 Footer = require './footer'
 LeftSider = require './left-sider'
 RightSider = require './right-sider'
 
-FooterCursorPosition = require './utils/footer-cursor-position'
+FooterCursorPosition = require './plugin/footer-cursor-position'
+Markdown = require './plugin/markdown'
 style = require './index.css'
 
 module.exports = class UnorderedEditor extends Component
@@ -15,19 +17,25 @@ module.exports = class UnorderedEditor extends Component
     @_headerComponent = null
     @_rightSiderComponent = null
     @_footerComponent = null
+    @_paneComponent = null
 
   componentDidMount: ->
-    {leftSider, header, rightSider, footer} = @refs
+    {leftSider, header, rightSider, footer, pane} = @refs
     @_leftSiderComponent = leftSider
     @_headerComponent = header
     @_rightSiderComponent = rightSider
     @_footerComponent = footer
+    @_paneComponent = pane
 
-    @_footerComponent.registerLeftItem createElement FooterCursorPosition, {editor: this}
+    @_paneComponent.setBody Editor
+
+    @_footerComponent.registerLeftItems [createElement(FooterCursorPosition, {editor: this}), createElement(Markdown, {editor: this})]
 
   getFooterComponent: -> @_footerComponent
 
-  getCurrentEditor: -> @refs.editor
+  getPaneComponent: -> @_paneComponent
+
+  getCurrentEditor: -> @_paneComponent.getCurrentEditor()
 
   render: ->
     <u-editor class={style.root}>
@@ -39,7 +47,7 @@ module.exports = class UnorderedEditor extends Component
           <LeftSider ref='leftSider' />
         </u-left-sider>
         <u-content>
-          <Editor ref='editor' />
+          <Pane ref='pane' />
         </u-content>
         <u-right-sider>
           <RightSider ref='rightSider' />

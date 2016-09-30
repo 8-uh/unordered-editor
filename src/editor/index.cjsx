@@ -1,7 +1,7 @@
 {PropTypes, Component, createElement} = require 'react'
 Editor = require './editor'
 EditorBuffer = require 'unordered-editor-buffer'
-TextTransformer = require './utils/text-transformer'
+TextTransformer = require '../plugin/text-transformer'
 
 # VIM = require('unordered-editor-vim')
 
@@ -40,10 +40,10 @@ module.exports = class EditorWrapper extends Component
   _isSetInputPositionCheckpoint: ->
     @_inputPositionCheckpoint.startCol isnt -1 and @_inputPositionCheckpoint.endCol isnt -1
 
-  componentWillReceiveProps: (props) ->
-    @_buffer.initBuffer props.content or ''
-    @_clearInputPositionCheckpoint()
-    @_buffer.setCursorPosition 0, 0
+  # componentWillReceiveProps: (props) ->
+  #   @_buffer.initBuffer props.content or ''
+  #   @_clearInputPositionCheckpoint()
+  #   @_buffer.setCursorPosition 0, 0
 
   componentDidMount: ->
     # @_plugins = @_plugins.concat new VIM @

@@ -10,6 +10,8 @@
   font-size: 12px;
 
   > u-left {
+    display: flex;
+    
     > u-footer-item {
       padding: 0 8px;
     }

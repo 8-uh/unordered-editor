@@ -17,6 +17,7 @@
     "url": "https://github.com/unordered/unordered-editor.git"
   },
   "dependencies": {
+    "marked": "^0.3.6",
     "react": "^15.3.2",
     "unordered-editor-buffer": "^1.0.0",
     "unordered-editor-vim": "^1.0.1"

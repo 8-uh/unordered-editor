@@ -11,7 +11,7 @@ module.exports = class FooterCursorPosition extends Component
       col: 1
 
   componentDidMount: ->
-    @props.editor.getCurrentEditor().addUpdateListener () =>
+    @props.editor.getCurrentEditor()?.addUpdateListener () =>
       {cursorRow, cursorCol} = @props.editor.getCurrentEditor().getBuffer().getCursor()
       @setState
         row: cursorRow + 1
