@@ -4,6 +4,8 @@
 
 # [DEMO](http://demo.editor.unordered.xyz)
 
+![](http://oes5mawzd.bkt.clouddn.com/editor.gif)
+
 # USAGE
 
 ```
