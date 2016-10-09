@@ -4,6 +4,7 @@
   "description": "a simple web editor",
   "main": "lib/index.js",
   "scripts": {
+    "build:demo": "webpack --config webpack.config.dev.js",
     "start": "webpack-dev-server --config webpack.config.dev.js --inline --hot --host 0.0.0.0 --port 1993",
     "build": "webpack"
   },
