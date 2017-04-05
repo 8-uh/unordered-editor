@@ -1,0 +1,113 @@
+.unordered-editor {
+  line-height: 21px;
+  cursor: default;
+  font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: block;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  background-color: #282c34;
+  color: #abb2bf;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.unordered-editor::-webkit-scrollbar {
+  width: 2px;
+}
+
+.unordered-editor::-webkit-scrollbar-track {
+  background: #eee;
+}
+
+.unordered-editor::-webkit-scrollbar-thumb {
+  background: red;
+}
+
+.unordered-editor * {
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.unordered-editor > .line-numbers {
+  padding-bottom: 128px;
+  border-right: 1px solid #3c4049;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50px;
+  min-height: 100%;
+}
+
+.unordered-editor > .editor-wrapper {
+  position: absolute;
+  left: 50px;
+  top: 0;
+  right: 0;
+  min-height: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.unordered-editor > .editor-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.unordered-editor > .editor-wrapper > .editor-area {
+  display: inline-block;
+  position: relative;
+  min-height: 100%;
+  min-width: 100%;
+}
+
+.unordered-editor > .editor-wrapper > .editor-area > .dummy {
+  position: absolute;
+  visibility: hidden;
+}
+
+.unordered-editor > .editor-wrapper > .editor-area > .dummy > span {
+  display: inline;
+}
+
+.unordered-editor > .editor-wrapper > .editor-area > .line {
+  white-space: nowrap;
+}
+
+.unordered-editor > .editor-wrapper > .editor-area > .line * {
+  display: inline-block;
+}
+
+.unordered-editor > .editor-wrapper > .editor-area > .line .space,
+.unordered-editor > .editor-wrapper > .editor-area > .line .enter {
+  color: #3b4048;
+}
+
+.unordered-editor > .editor-wrapper > .editor-area > .line[data-active=true] {
+  background: #2c323c;
+}
+
+@keyframes focuspointer {
+  0% {
+    border-left: 2px solid transparent;
+  }
+  100% {
+    border-left: 2px solid #528bff;
+  }
+}
+
+.hidden-input {
+  width: 0;
+  line-height: 21px;
+  position: absolute;
+  outline: none;
+  border: none;
+  appearance: none;
+  background-color: transparent;
+  color: transparent;
+}
+
+.hidden-input:focus {
+  animation: focuspointer .7s infinite;
+}

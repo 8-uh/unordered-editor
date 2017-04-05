@@ -1,4 +1,4 @@
-.root {
+.unordered-editor {
   line-height: 21px;
   cursor: default;
   font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
@@ -23,12 +23,11 @@
   }
 
   * {
-    display: block;
     box-sizing: border-box;
     user-select: none;
   }
 
-  > u-line-numbers {
+  > .line-numbers {
     padding-bottom: 128px;
     border-right: 1px solid rgb(60, 64, 73);
     position: absolute;
@@ -38,7 +37,7 @@
     min-height: 100%;
   }
 
-  > u-editor-wrapper {
+  > .editor-wrapper {
     position: absolute;
     left: 50px;
     top: 0;
@@ -50,13 +49,13 @@
       display: none;
     }
 
-    > u-editor-area {
+    > .editor-area {
       display: inline-block;
       position: relative;
       min-height: 100%;
       min-width: 100%;
 
-      > u-dummy {
+      > .dummy {
         position: absolute;
         visibility: hidden;
 
@@ -65,15 +64,15 @@
         }
       }
 
-      > u-line {
+      > .line {
         white-space: nowrap;
 
         * {
           display: inline-block;
         }
 
-        u-space,
-        u-enter {
+        .space,
+        .enter {
           color: rgb(59, 64, 72);
         }
 
@@ -90,7 +89,7 @@
   100% { border-left: 2px solid rgb(82, 139, 255); }
 }
 
-.hiddenInput {
+.hidden-input {
   width: 0;
   line-height: 21px;
   position: absolute;
@@ -101,6 +100,6 @@
   color: transparent;
 }
 
-.hiddenInput:focus {
+.hidden-input:focus {
   animation: focuspointer .7s infinite;
 }

@@ -1,0 +1,16 @@
+{
+  "presets": ["es2015", "react"],
+  "plugins": [
+    "react-hot-loader/babel",
+    "transform-class-properties",
+    "transform-async-to-generator",
+    "transform-object-rest-spread",
+    "transform-export-extensions",
+    [
+      "transform-runtime", {
+        "polyfill": true,
+        "regenerator": true
+      }
+    ]
+  ]
+}
