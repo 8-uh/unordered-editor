@@ -1,7 +1,6 @@
 import {combineReducers, applyMiddleware, createStore} from 'redux'
 import createSagaMiddleware from 'redux-saga'
-import {routerMiddleware} from 'react-router-redux'
-import {routerReducer} from 'react-router-redux'
+import {routerReducer, routerMiddleware} from 'react-router-redux'
 
 import sagas from '../sagas'
 import reducers from './index'

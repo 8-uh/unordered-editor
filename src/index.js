@@ -9,7 +9,7 @@ export default class UnorderedEditor extends Component {
     content: PropTypes.string
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
     this._buffer = new EditorBuffer()
     this._buffer.initBuffer(this.props.content || '')
@@ -31,7 +31,6 @@ export default class UnorderedEditor extends Component {
     }
   }
 
-
   _clearInputPositionCheckpoint = () => {
     this._inputPositionCheckpoint = {
       startCol: -1,
@@ -44,8 +43,8 @@ export default class UnorderedEditor extends Component {
   }
 
   _isSetInputPositionCheckpoint = () => {
-    return this._inputPositionCheckpoint.startCol !== -1
-      && this._inputPositionCheckpoint.endCol !== -1
+    return this._inputPositionCheckpoint.startCol !== -1 &&
+      this._inputPositionCheckpoint.endCol !== -1
   }
 
   componentWillReceiveProps = (props) => {
@@ -68,19 +67,31 @@ export default class UnorderedEditor extends Component {
 
   setInputValue = (text) => this.setState({hiddenInputValue: text})
 
-  setInputStyle = (style) => this._hiddenInputStyle = style
+  setInputStyle = (style) => {
+    this._hiddenInputStyle = style
+  }
 
   resetInput = () => this._clearInputPositionCheckpoint()
 
-  addInputChangeListener = (listener) => this._inputChangeListeners = this._inputChangeListeners.concat(listener)
+  addInputChangeListener = (listener) => {
+    this._inputChangeListeners = this._inputChangeListeners.concat(listener)
+  }
 
-  addInputKeyDownListener = (listener) => this._inputKeyDownListeners = this._inputKeyDownListeners.concat(listener)
+  addInputKeyDownListener = (listener) => {
+    this._inputKeyDownListeners = this._inputKeyDownListeners.concat(listener)
+  }
 
-  addInputKeyUpListener = (listener) => this._inputKeyUpListeners = this._inputKeyUpListeners.concat(listener)
+  addInputKeyUpListener = (listener) => {
+    this._inputKeyUpListeners = this._inputKeyUpListeners.concat(listener)
+  }
 
-  addEditorMouseDownListener = (listener) => this._editorMouseDownListeners = this._editorMouseDownListeners.concat(listener)
+  addEditorMouseDownListener = (listener) => {
+    this._editorMouseDownListeners = this._editorMouseDownListeners.concat(listener)
+  }
 
-  addEditorMouseUpListener = (listener) => this._editorMouseUpListeners = this._editorMouseUpListeners.concat(listener)
+  addEditorMouseUpListener = (listener) => {
+    this._editorMouseUpListeners = this._editorMouseUpListeners.concat(listener)
+  }
 
   setEditorOptions = (options) => {
     this._buffer.setOptions(options)
@@ -151,14 +162,23 @@ export default class UnorderedEditor extends Component {
     }
   }
 
-  render() {
+  render () {
     const bufferRows = TextTransformer.transform(this._buffer.getRows())
     const {cursorX, cursorY, cursorRow, cursorCol, cursorWidth} = this._buffer.getCursor()
     const {hiddenInputValue} = this.state
     const editorProps = {
-      bufferRows, cursorRow, cursorCol, cursorX, cursorY, cursorWidth, cursorHeight: 21,
-      hiddenInputValue, setEditorOptions: this.setEditorOptions, onEditorMouseDown: this.onEditorMouseDown,
-      onHiddenInputChange: this.onHiddenInputChange, onHiddenInputKeyDown: this.onHiddenInputKeyDown,
+      bufferRows,
+      cursorRow,
+      cursorCol,
+      cursorX,
+      cursorY,
+      cursorWidth,
+      cursorHeight: 21,
+      hiddenInputValue,
+      setEditorOptions: this.setEditorOptions,
+      onEditorMouseDown: this.onEditorMouseDown,
+      onHiddenInputChange: this.onHiddenInputChange,
+      onHiddenInputKeyDown: this.onHiddenInputKeyDown,
       hiddenInputStyle: this._hiddenInputStyle
     }
     return React.createElement(Editor, editorProps)

@@ -25,7 +25,7 @@ if (process.env.NODE_ENV !== 'production' && module.hot) {
   module.hot.accept('./app', () => render(require('./app').default))
   window.onmessage = (e) => {
     if (typeof e.data === 'string' && e.data.startsWith('webpackHotUpdate')) {
-      const link = [...document.getElementsByTagName("link")].find(l => l.href.search('style.css') !== -1)
+      const link = [...document.getElementsByTagName('link')].find(l => l.href.search('style.css') !== -1)
       document.head.appendChild(link.cloneNode())
       setTimeout(() => document.head.removeChild(link), 100)
     }

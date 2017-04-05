@@ -23,10 +23,10 @@ server.use(KoaConvert(KoaStaticCache(path.resolve(__dirname, '../public'), {
 })))
 
 server.use(async (ctx, next) => {
-  const {path, url, query} = ctx.request
+  const {url, query} = ctx.request
   try {
     ctx.body = await renderFullPage(url, query)
-  } catch(e) {
+  } catch (e) {
     ctx.body = e.message
   }
   next && await next()
@@ -51,22 +51,26 @@ const HTML = ({content, store}) => (
   </html>
 )
 
-async function renderFullPage(path, query) {
+async function renderFullPage (path, query) {
   return new Promise((resolve, reject) => {
     const memoryHistory = createMemoryHistory(path)
     let store = configureStore({}, memoryHistory)
     const history = syncHistoryWithStore(memoryHistory, store)
     match({history, routes, location: path}, (error, redirectLocation, renderProps) => {
+      if (error) {
+        reject(error)
+        return
+      }
       if (renderProps) {
         renderProps.location.query = query
         fetchData(renderProps, store).then(() => {
           store = configureStore(store.getState(), memoryHistory)
           const content = renderToString(
             <Provider store={store}>
-              <RouterContext {...renderProps}/>
+              <RouterContext {...renderProps} />
             </Provider>
           )
-          resolve(renderToString(<HTML content={content} store={store}/>))
+          resolve(renderToString(<HTML content={content} store={store} />))
         }).catch((e) => {
           reject(e)
         })
@@ -77,7 +81,7 @@ async function renderFullPage(path, query) {
   })
 }
 
-function fetchData(renderProps, store) {
+function fetchData (renderProps, store) {
   const actions = renderProps.components.filter(i => i.fetchData).map(i => i.fetchData(renderProps)(store.dispatch, store.getState))
   return Promise.all(actions)
 }

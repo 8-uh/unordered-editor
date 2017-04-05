@@ -1,6 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
-const ExtractTextPlugin = require("extract-text-webpack-plugin")
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 
 module.exports = {
@@ -13,12 +13,12 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, '../../demo-dist/gh-pages'),
     publicPath: '/',
-    library: "UWEB",
-    libraryTarget: "umd"
+    library: 'UWEB',
+    libraryTarget: 'umd'
   },
   plugins: [
-    new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /zh-cn/),
-    new ExtractTextPlugin({filename: "style.css", allChunks: true})
+    new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-cn/),
+    new ExtractTextPlugin({filename: 'style.css', allChunks: true})
   ],
   externals: {
     'react': {commonjs: 'react', commonjs2: 'react', amd: 'react', root: 'React'},
@@ -30,7 +30,8 @@ module.exports = {
     rules: [
       {test: /\.js$/, include: [path.resolve(__dirname, '..'), path.resolve(__dirname, '../../src')], use: 'babel-loader'},
       {
-        test: /\.scss$/, include: [path.resolve(__dirname, '..'), path.resolve(__dirname, '../../src')],
+        test: /\.scss$/,
+        include: [path.resolve(__dirname, '..'), path.resolve(__dirname, '../../src')],
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
           use: ['css-loader', {

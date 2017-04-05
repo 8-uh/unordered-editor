@@ -1,6 +1,6 @@
 import React, {PropTypes, Component} from 'react'
 
-export default  class TextEditor extends Component {
+export default class TextEditor extends Component {
   static propTypes = {
     cursorX: PropTypes.number.isRequired,
     cursorY: PropTypes.number.isRequired,
@@ -17,7 +17,7 @@ export default  class TextEditor extends Component {
     onHiddenInputKeyDown: PropTypes.func.isRequired
   }
 
-  componentDidMount() {
+  componentDidMount () {
     const {dummyDefaultChar, dummyDoubleChar} = this.refs
     const defaultCharWidth = dummyDefaultChar.getBoundingClientRect().width
     const doubleCharWidth = dummyDoubleChar.getBoundingClientRect().width
@@ -25,7 +25,7 @@ export default  class TextEditor extends Component {
     this.props.setEditorOptions({defaultCharWidth, doubleCharWidth, lineHeight})
   }
 
-  componentWillReceiveProps(props) {
+  componentWillReceiveProps (props) {
     const {cursorX, cursorY, cursorHeight, cursorWidth} = props
     const {scrollTop, offsetHeight} = this.refs.editor
     if (cursorY > offsetHeight + scrollTop - cursorHeight * 4) {
@@ -56,7 +56,7 @@ export default  class TextEditor extends Component {
     this.refs.hiddenInput.focus()
   }
 
-  render() {
+  render () {
     let {bufferRows, cursorRow, cursorX, cursorY, cursorWidth, cursorHeight, hiddenInputValue,
       hiddenInputStyle, onHiddenInputChange, onHiddenInputKeyDown} = this.props
     hiddenInputStyle = Object.assign({

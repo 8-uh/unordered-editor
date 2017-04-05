@@ -1,7 +1,7 @@
 import React from 'react'
 
 export default class TextTransformer {
-  static transform(rows) {
+  static transform (rows) {
     return rows.map((i, index) => {
       if (i.endsWith('\n')) {
         return (
