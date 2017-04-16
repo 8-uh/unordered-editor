@@ -41,9 +41,21 @@ module.exports = {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
     })
   ],
+  resolve: {
+    extensions: ['.js', '.coffee']
+  },
   module: {
     rules: [
-      {test: /\.js$/, include: [path.resolve(__dirname, '..'), path.resolve(__dirname, '../../src')], use: 'babel-loader'},
+      {
+        test: /\.coffee$/,
+        include: path.resolve(__dirname, '../../src'),
+        use: 'coffee-loader'
+      },
+      {
+        test: /\.js$/,
+        include: [path.resolve(__dirname, '..'), path.resolve(__dirname, '../../src')],
+        use: 'babel-loader'
+      },
       {
         test: /\.scss$/,
         include: [path.resolve(__dirname, '..'), path.resolve(__dirname, '../../src')],

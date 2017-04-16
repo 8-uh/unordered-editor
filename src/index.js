@@ -1,8 +1,8 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import EditorBuffer from 'unordered-editor-buffer'
 
 import Editor from './editor'
+import EditorBuffer from './buffer'
 import TextTransformer from './utils/text-transformer'
 
 export default class UnorderedEditor extends Component {

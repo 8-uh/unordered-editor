@@ -16,7 +16,7 @@ const isProduction = process.env.NODE_ENV === 'production'
 
 const server = new Koa()
 
-server.use(KoaConvert(KoaStaticCache(path.resolve(__dirname, '../public'), {
+server.use(KoaConvert(KoaStaticCache(path.resolve(__dirname, '../../public'), {
   gzip: true,
   dynamic: true
 })))
