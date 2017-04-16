@@ -4,28 +4,43 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 
 module.exports = {
-  entry: [
-    path.resolve(__dirname, '../client/gh-pages-index.js'),
-    path.resolve(__dirname, '../app/styles/index.scss'),
-    path.resolve(__dirname, '../../src/index.scss')
-  ],
+  entry: {
+    app: [
+      path.resolve(__dirname, '../client/index.js'),
+      path.resolve(__dirname, '../app/styles/index.scss'),
+      path.resolve(__dirname, '../../src/index.scss')
+    ],
+    vender: [
+      'react',
+      'react-dom'
+    ],
+    common: [
+      'react-router-dom',
+      'react-router-config',
+      'fetch-everywhere',
+      'react-redux',
+      'redux',
+      'redux-saga'
+    ]
+  },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, '../../demo-dist/gh-pages'),
     publicPath: '/',
     library: 'UWEB',
     libraryTarget: 'umd'
   },
   plugins: [
-    new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /zh-cn/),
-    new ExtractTextPlugin({filename: 'style.css', allChunks: true})
+    new ExtractTextPlugin({filename: 'style.css', allChunks: true}),
+    new webpack.NamedModulesPlugin(),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: ['vender', 'common'],
+      minChunks: Infinity
+    }),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+    })
   ],
-  externals: {
-    'react': {commonjs: 'react', commonjs2: 'react', amd: 'react', root: 'React'},
-    'react-dom': {commonjs: 'react-dom', commonjs2: 'react-dom', amd: 'react-dom', root: 'ReactDOM'},
-    'react-addons-css-transition-group': {commonjs: 'react-addons-css-transition-group', commonjs2: 'react-addons-css-transition-group', amd: 'react-addons-css-transition-group', root: ['React', 'addons', 'CSSTransitionGroup']},
-    'react-router': {commonjs: 'react-router', commonjs2: 'react-router', amd: 'react-router', root: 'ReactRouter'}
-  },
   module: {
     rules: [
       {test: /\.js$/, include: [path.resolve(__dirname, '..'), path.resolve(__dirname, '../../src')], use: 'babel-loader'},
@@ -51,11 +66,10 @@ module.exports = {
 
 if (process.env.NODE_ENV !== 'production') {
   module.exports.plugins.push(new webpack.HotModuleReplacementPlugin())
-  module.exports.plugins.push(new webpack.NamedModulesPlugin())
-  module.exports.entry.unshift(
+  module.exports.entry.app.unshift(
+    'react-hot-loader/patch',
     'webpack-dev-server/client',
-    'webpack/hot/only-dev-server',
-    'react-hot-loader/patch'
+    'webpack/hot/only-dev-server'
   )
 } else {
   module.exports.plugins.push(new webpack.optimize.UglifyJsPlugin({compress: {warnings: false}}))
@@ -64,8 +78,5 @@ if (process.env.NODE_ENV !== 'production') {
     cssProcessor: require('cssnano'),
     cssProcessorOptions: {discardComments: {removeAll: true}},
     canPrint: true
-  }))
-  module.exports.plugins.push(new webpack.DefinePlugin({
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
   }))
 }

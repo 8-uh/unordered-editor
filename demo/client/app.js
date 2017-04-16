@@ -1,15 +1,16 @@
 import React from 'react'
-import {Router} from 'react-router'
+import {BrowserRouter as Router} from 'react-router-dom'
 import {Provider} from 'react-redux'
+import {renderRoutes} from 'react-router-config'
 
 import routes from '../app/routes'
 
 export default (props) => {
-  const {store, history} = props
+  const {store} = props
   return (
     <Provider store={store}>
-      <Router history={history} key={new Date()}>
-        {routes}
+      <Router>
+        {renderRoutes(routes)}
       </Router>
     </Provider>
   )

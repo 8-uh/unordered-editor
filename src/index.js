@@ -1,8 +1,9 @@
-import React, {PropTypes, Component} from 'react'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
+import EditorBuffer from 'unordered-editor-buffer'
+
 import Editor from './editor'
 import TextTransformer from './utils/text-transformer'
-
-import EditorBuffer from 'unordered-editor-buffer'
 
 export default class UnorderedEditor extends Component {
   static propTypes = {

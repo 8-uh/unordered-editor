@@ -1,20 +1,16 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {AppContainer} from 'react-hot-loader'
-import {browserHistory} from 'react-router'
-import {syncHistoryWithStore} from 'react-router-redux'
-import configureStore from '../app/reducers/configureStore'
+
 import App from './app'
+import configureStore from '../app/reducers/configureStore'
 
 const initialState = window.__INITIAL_STATE__
-const store = configureStore(initialState, browserHistory)
-const history = syncHistoryWithStore(browserHistory, store, {
-  selectLocationState: (state) => state.routing
-})
+const store = configureStore(initialState)
 
 const render = Component => ReactDOM.render(
   <AppContainer>
-    <Component store={store} history={history} />
+    <Component store={store} />
   </AppContainer>,
   document.getElementById('root')
 )
