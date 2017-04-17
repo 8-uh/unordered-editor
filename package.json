@@ -19,7 +19,7 @@
     "build:lib:dev": "NODE_ENV=development babel src/ -w -d demo-dist/src/",
     "build:lib:coffee:dev": "NODE_ENV=development coffee -w -b -o demo-dist/src/ -c src/",
     "start:prod": "NODE_ENV=production node demo-dist/demo/server/index.js",
-    "build:prod": "run-p clean build:client:prod build:server:prod build:lib:prod build:lib:coffee:prod copy",
+    "build:prod": "run-p build:client:prod build:server:prod build:lib:prod build:lib:coffee:prod copy",
     "build:client:prod": "NODE_ENV=production webpack --config demo/scripts/webpack.config.js",
     "build:server:prod": "NODE_ENV=production babel demo/ -d demo-dist/demo",
     "build:lib:prod": "NODE_ENV=production babel src/ -d demo-dist/src/",
