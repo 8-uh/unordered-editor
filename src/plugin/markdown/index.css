@@ -1,5 +1,0 @@
-.root {
-  &[data-active=true] {
-    color: rgb(118, 200, 146);
-  }
-}

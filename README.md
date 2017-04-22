@@ -2,6 +2,10 @@
 
 > a web editor use react and written with coffeescript
 
+# [DEMO](http://demo.editor.unordered.xyz)
+
+![](http://oes5mawzd.bkt.clouddn.com/editor.gif)
+
 # USAGE
 
 ```
